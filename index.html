@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KINGDOM WARS — Hardcore</title>
+<style>
+:root{--bg:#101018;--panel:#1b1b29;--panel2:#242437;--gold:#e8b84d;--text:#eee9dc;--muted:#aaa4b5;--red:#d85b5b;--green:#65b879;--line:#39394d}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#252238,#101018 55%);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+button,input{font:inherit}button{border:1px solid #655638;background:linear-gradient(#40351f,#282318);color:#ffe5a2;padding:10px 13px;border-radius:10px;cursor:pointer;font-weight:700}button:hover{filter:brightness(1.2)}button:disabled{opacity:.4;cursor:not-allowed}
+header{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#11111bd9;position:sticky;top:0;z-index:5;backdrop-filter:blur(8px)}
+.logo{font-size:22px;font-weight:1000;letter-spacing:2px;color:var(--gold)}.sub{color:var(--muted);font-size:12px}
+.stats{display:flex;gap:8px;flex-wrap:wrap}.pill{background:var(--panel2);border:1px solid var(--line);padding:7px 10px;border-radius:10px;font-size:13px}
+main{max-width:1150px;margin:18px auto;padding:0 14px 40px}.tabs{display:flex;gap:7px;overflow:auto;padding-bottom:12px}.tabs button{white-space:nowrap;background:#242437;border-color:var(--line);color:var(--text)}.tabs button.active{background:#51401f;color:#ffe5a2;border-color:var(--gold)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:13px}.card{background:linear-gradient(145deg,#222233,#191925);border:1px solid var(--line);border-radius:15px;padding:15px;box-shadow:0 8px 25px #0003}.card h2,.card h3{margin:0 0 10px;color:var(--gold)}h1{font-size:24px;margin:0 0 10px}.muted{color:var(--muted)}.big{font-size:32px}.bar{height:10px;background:#090910;border-radius:20px;overflow:hidden;margin:6px 0 10px}.bar span{display:block;height:100%;background:linear-gradient(90deg,#9d3838,#e46a54)}.bar.green span{background:linear-gradient(90deg,#397e4c,#83d18d)}.bar.gold span{background:linear-gradient(90deg,#9a7028,#f0ca62)}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;margin:7px 0}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.item{padding:9px;background:#11111b;border:1px solid #343448;border-radius:9px;margin:6px 0}.item small{color:var(--muted)}.log{height:170px;overflow:auto;background:#0d0d15;border:1px solid var(--line);padding:10px;border-radius:10px;font-size:13px}.enemy{font-size:58px;text-align:center;padding:12px}.hero{font-size:46px;text-align:center}.map{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.place{min-height:100px;background:linear-gradient(145deg,#303047,#1b1b29);border:1px solid #55516a;border-radius:12px;padding:12px;text-align:center}.place b{display:block;color:var(--gold);margin:5px 0}.locked{opacity:.5;filter:grayscale(.7)}.notice{padding:10px;border-left:3px solid var(--gold);background:#2a251a;border-radius:7px;margin:8px 0}.hidden{display:none}.good{color:#8cda9a}.bad{color:#ff8888}.tag{font-size:11px;padding:3px 6px;border-radius:6px;background:#3b3322;color:#f5d78c}
+input{background:#101018;color:var(--text);border:1px solid var(--line);padding:10px;border-radius:9px;max-width:100%}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+@media(max-width:560px){header{position:static}.map{grid-template-columns:repeat(2,1fr)}.stats{width:100%}.pill{flex:1}}
+</style>
+</head>
+<body>
+<header><div><div class="logo">⚔ KINGDOM WARS</div><div class="sub">HARDCORE • Выживание начинается здесь</div></div><div class="stats"><span class="pill">Ур. <b id="hLevel">1</b></span><span class="pill">❤️ <b id="hHp">100/100</b></span><span class="pill">💰 <b id="hGold">35</b></span><span class="pill">🌾 <b id="hFood">10</b></span></div></header>
+<main>
+<div class="tabs" id="tabs">
+<button class="active" data-tab="battle">⚔️ Сражение</button><button data-tab="town">🏰 Город</button><button data-tab="inventory">🎒 Инвентарь</button><button data-tab="profile">👤 Профиль</button><button data-tab="achievements">🏆 Достижения</button>
+</div>
+<section id="battle" class="page">
+<div class="grid">
+<div class="card"><h2>Арена</h2><div class="row"><span>Волна <b id="wave">1</b></span><span class="tag" id="enemyKind">Обычный враг</span></div><div class="enemy" id="enemyIcon">👹</div><h3 id="enemyName" style="text-align:center">Лесной разбойник</h3><div class="bar"><span id="enemyBar" style="width:100%"></span></div><div class="row"><small>Здоровье врага</small><b id="enemyHp">30/30</b></div><div class="hero">🛡️⚔️</div><div class="row"><span>Твоё здоровье</span><b id="battleHp">100/100</b></div><div class="bar green"><span id="hpBar" style="width:100%"></span></div><div class="actions"><button id="attackBtn">⚔️ Атаковать</button><button id="healBtn">🩹 Использовать бинт</button><button id="retreatBtn">↩ Отступить в город</button></div><p class="muted">Бой идёт автоматически: каждые 10 секунд герой и враг обмениваются ударами. Кнопка атаки позволяет ударить сразу.</p></div>
+<div class="card"><h2>Состояние героя</h2><div class="row"><span>🍖 Голод</span><b id="hungerText">100/100</b></div><div class="bar gold"><span id="hungerBar" style="width:100%"></span></div><div class="row"><span>⚡ Энергия</span><b id="energyText">100/100</b></div><div class="bar gold"><span id="energyBar" style="width:100%"></span></div><div class="row"><span>🗡️ Сила</span><b id="powerText">10</b></div><div class="row"><span>🛡️ Защита</span><b id="defText">2</b></div><div class="notice">❤️ Здоровье медленно восстанавливается: 1 HP каждые 10 секунд. В бою враг тоже атакует.</div><h3>Журнал событий</h3><div class="log" id="battleLog"></div></div>
+</div></section>
+<section id="town" class="page hidden"><div class="card"><h1>🏰 Королевство Серебряного Рассвета</h1><p class="muted">Безопасная зона. Здесь можно поесть, отдохнуть, лечиться, торговать и развивать поселение.</p><div class="row"><span>Уровень королевства: <b id="townLevel">1</b></span><span>Опыт до уровня: <b id="xpText">0/10</b></span></div><div class="bar gold"><span id="xpBar" style="width:0%"></span></div></div><div class="card" style="margin-top:13px"><h2>Карта города</h2><div class="map" id="townMap"></div><div id="buildingDetail" class="notice">Выбери здание на карте, чтобы посмотреть его возможности.</div></div></section>
+<section id="inventory" class="page hidden"><div class="grid"><div class="card"><h2>🎒 Инвентарь</h2><div id="itemsList"></div></div><div class="card"><h2>📦 Ресурсы</h2><div id="resourcesList"></div></div></div></section>
+<section id="profile" class="page hidden"><div class="grid"><div class="card"><h2>👤 Профиль игрока</h2><label>Никнейм<br><input id="nickname" maxlength="18" placeholder="Введи никнейм"></label><div class="actions"><button id="saveNick">Сохранить ник</button></div><h1 id="profileName">Новичок</h1><div class="muted">Путь героя • Хардкорный режим</div></div><div class="card"><h2>📊 Статистика</h2><div id="profileStats"></div></div></div></section>
+<section id="achievements" class="page hidden"><div class="card"><h2>🏆 Достижения</h2><div id="achievementList"></div></div></section>
+</main><footer>KINGDOM WARS • Прогресс сохраняется на этом устройстве в браузере. Это одиночная версия: общий онлайн-профиль пока не подключён.</footer>
+<script>
+const $=id=>document.getElementById(id);
+const defaults={nick:"Новичок",level:1,xp:0,gold:35,wave:1,hp:100,maxHp:100,hunger:100,energy:100,power:10,def:2,weapon:"Деревянный меч",weaponPower:0,enemyHp:30,enemyMax:30,enemyName:"Лесной разбойник",enemyIcon:"👹",boss:false,items:{ "Бинт":2 },resources:{wood:8,stone:5,herb:4,ore:0,cloth:2,meat:0,wheat:0,flour:0,bread:0,leather:0},buildings:{farm:false,forge:false,animals:false,bakery:false,clinic:false,mine:false,alchemy:false},playSeconds:0,kills:0,bossKills:0,deaths:0,artifacts:0,highestWave:1,crafted:0,lastTick:Date.now(),farmReady:0,animalReady:0,artifactCollection:[],shopStock:{"Бинт":5,"Малое зелье":3,"Большое зелье":2,"Мощный эликсир":1},shopRefillAt:Date.now()+30*60*1000};
+let s;try{s={...defaults,...JSON.parse(localStorage.getItem("kw_hardcore_save")||"{}")};s.items={...defaults.items,...(s.items||{})};s.resources={...defaults.resources,...(s.resources||{})};s.buildings={...defaults.buildings,...(s.buildings||{})};s.artifactCollection=Array.isArray(s.artifactCollection)?s.artifactCollection:[];s.shopStock={...defaults.shopStock,...(s.shopStock||{})};s.shopRefillAt=s.shopRefillAt||Date.now()+30*60*1000}catch(e){s={...defaults,items:{...defaults.items},resources:{...defaults.resources},buildings:{...defaults.buildings}}}
+let enemyTimer=null;
+const buildings=[
+{id:"trader",name:"🧳 Торговец припасами",level:1,desc:"Покупай бинты, лечебные зелья и эликсиры за золото.",action:"trader"},
+{id:"farm",name:"🌾 Ферма",level:1,desc:"Выращивай пшеницу. Один урожай созревает за 30 минут.",action:"farm"},
+{id:"forge",name:"⚒️ Кузница",level:5,desc:"Создавай оружие и улучшай экипировку.",action:"forge"},
+{id:"animals",name:"🐑 Животноводство",level:10,desc:"Покупай животных и получай мясо, кожу и шерсть.",action:"animals"},
+{id:"bakery",name:"🥖 Пекарня",level:15,desc:"Перерабатывай пшеницу в муку, а муку — в хлеб.",action:"bakery"},
+{id:"clinic",name:"🏥 Лазарет",level:20,desc:"Лечись и снимай последствия ранений.",action:"clinic"},
+{id:"mine",name:"⛏️ Шахта",level:30,desc:"Добывай руду и камень.",action:"mine"},
+{id:"alchemy",name:"⚗️ Алхимическая лаборатория",level:50,desc:"Изготавливай сильные эликсиры и противоядия.",action:"alchemy"},
+{id:"stable",name:"🐎 Конюшня",level:75,desc:"Открывает быстрые дальние экспедиции (будет расширена).",action:"stable"},
+{id:"guild",name:"🏛️ Гильдия исследователей",level:100,desc:"Доступ к самым опасным экспедициям.",action:"guild"}
+];
+const fmt=t=>`${Math.floor(t/3600)} ч ${Math.floor(t%3600/60)} мин`;
+const artifactTable=[
+{name:"Клык гоблина",rarity:"Обычный",chance:60,desc:"+2 к силе",power:2,def:0,hp:0,gold:0},
+{name:"Камень стойкости",rarity:"Необычный",chance:25,desc:"+5 к максимальному HP",power:0,def:0,hp:5,gold:0},
+{name:"Кольцо охотника",rarity:"Редкий",chance:12,desc:"+2% к золоту за победы",power:0,def:0,hp:0,gold:2},
+{name:"Сердце тролля",rarity:"Эпический",chance:2.5,desc:"+1 к защите и +5 HP",power:0,def:1,hp:5,gold:0},
+{name:"Глаз дракона",rarity:"Легендарный",chance:.5,desc:"+3 к силе и +2 к защите",power:3,def:2,hp:0,gold:0}
+];
+function save(){try{localStorage.setItem("kw_hardcore_save",JSON.stringify(s))}catch(e){log("Не удалось сохранить прогресс в браузере.")}}
+function log(t){let el=$("battleLog");if(el){el.innerHTML+=`<div>• ${t}</div>`;el.scrollTop=el.scrollHeight}}
+function addItem(n,q=1){s.items[n]=(s.items[n]||0)+q}
+function spendItem(n,q=1){if((s.items[n]||0)<q)return false;s.items[n]-=q;if(!s.items[n])delete s.items[n];return true}
+function xpNeed(l){return Math.max(10,Math.floor(10*Math.pow(1.25,l-1)))}
+function gainXP(n){s.xp+=n;while(s.xp>=xpNeed(s.level)){s.xp-=xpNeed(s.level);s.level++;s.maxHp+=3;s.hp=Math.min(s.maxHp,s.hp+3);log(`Новый уровень: ${s.level}! Максимальное здоровье +3.`)}}
+function setEnemy(){s.boss=s.wave%10===0;let list=s.boss?[["👹","Огр-разрушитель"],["🐉","Древний дракон"],["💀","Рыцарь могил"]]:[["👺","Лесной разбойник"],["🐺","Дикий волк"],["🧟","Мертвец"],["🕷️","Пещерный паук"],["🪓","Наёмник"]];let e=list[Math.floor(Math.random()*list.length)];s.enemyIcon=e[0];s.enemyName=e[1];s.enemyMax=Math.floor((s.boss?95:28)+s.wave*(s.boss?12:5));s.enemyHp=s.enemyMax;render()}
+function damageEnemy(){if(s.hp<=0)return;let d=Math.max(1,s.power+s.weaponPower+Math.floor(Math.random()*5)-2);s.enemyHp=Math.max(0,s.enemyHp-d);log(`Ты наносишь ${d} урона.`);if(s.enemyHp<=0){win();return}enemyAttack();render()}
+function enemyAttack(){let d=Math.max(1,Math.floor(s.wave*(s.boss?1.7:.55)+4)-s.def);s.hp=Math.max(0,s.hp-d);log(`${s.enemyName} наносит ${d} урона.`);if(s.hp<=0)die()}
+function win(){
+ s.kills++;if(s.boss)s.bossKills++;
+ const goldBonus=(s.artifactCollection||[]).reduce((a,n)=>a+(artifactTable.find(x=>x.name===n)?.gold||0),0);
+ const gold=s.boss?100:Math.floor((8+Math.floor(s.wave/3))*(1+goldBonus/100));s.gold+=gold;
+ gainXP(10);s.resources.wood+=1;if(Math.random()<.25)s.resources.herb++;if(Math.random()<.18)s.resources.ore++;
+ if(s.boss)dropBossArtifact();
+ log(`Победа! +10 XP, +${gold} золота и материалы.${s.boss?" Награда босса гарантирована!":""}`);
+ s.wave++;s.highestWave=Math.max(s.highestWave,s.wave);if(s.wave%10===0)log("Следующая волна — БОСС! Подготовься.");setTimeout(setEnemy,700);save();render()
+}
+function dropBossArtifact(){
+ let roll=Math.random()*100,acc=0,drop=artifactTable[0];
+ for(const a of artifactTable){acc+=a.chance;if(roll<acc){drop=a;break}}
+ if(!Array.isArray(s.artifactCollection))s.artifactCollection=[];
+ if(s.artifactCollection.includes(drop.name)){addItem("Осколок артефакта",1);log(`🎁 Повторный артефакт: ${drop.name}. Получен осколок артефакта.`);return}
+ s.artifactCollection.push(drop.name);s.power+=drop.power;s.def+=drop.def;s.maxHp+=drop.hp;s.hp=Math.min(s.maxHp,s.hp+drop.hp);
+ log(`🎁 Артефакт: ${drop.name} (${drop.rarity}) — ${drop.desc}!`)
+}
+function die(){s.deaths++;let loss=Math.max(1,Math.floor(s.gold*.05));s.gold=Math.max(0,s.gold-loss);s.hp=Math.max(25,Math.floor(s.maxHp*.5));s.hunger=Math.max(20,s.hunger-12);s.energy=Math.max(20,s.energy-15);log(`Ты пал. Потеряно ${loss} золота (5%). Предметы, уровень и здания сохранены. Ты возвращён в город.`);s.wave=Math.max(1,s.wave-1);setTimeout(()=>{setEnemy();showTab("town")},500);save()}
+function useBandage(){if(s.hp>=s.maxHp)return log("Здоровье уже полностью восстановлено.");if(!spendItem("Бинт")){log("Бинтов нет. Купи их у торговца.");return}let heal=Math.min(25,s.maxHp-s.hp);s.hp+=heal;log(`Бинт восстановил ${heal} HP.`);render();save()}
+function usePotion(name,amount){if(s.hp>=s.maxHp)return log("Здоровье уже полностью восстановлено.");if(!spendItem(name))return log(`Нет предмета: ${name}.`);let h=Math.min(amount,s.maxHp-s.hp);s.hp+=h;log(`${name} восстановило ${h} HP.`);render();save()}
+function refreshTraderStock(){if(Date.now()>=s.shopRefillAt){s.shopStock={"Бинт":5,"Малое зелье":3,"Большое зелье":2,"Мощный эликсир":1};s.shopRefillAt=Date.now()+30*60*1000;log("Торговец пополнил запасы лечения.")}}
+function buyHeal(name,cost){refreshTraderStock();if((s.shopStock[name]||0)<=0)return log("Этот товар закончился. Запасы пополнятся через 30 минут.");if(s.gold<cost)return log("Недостаточно золота для покупки лечения.");s.gold-=cost;s.shopStock[name]--;addItem(name,1);log(`Куплено: ${name} за ${cost} золота.`);render();buildingAction("trader");save()}
+function rest(){s.energy=100;s.hunger=Math.max(0,s.hunger-5);s.hp=Math.min(s.maxHp,s.hp+15);log("Ты отдохнул в королевстве: +15 HP, энергия восстановлена.");render();save()}
+function eat(){if(s.resources.bread>0){s.resources.bread--;s.hunger=Math.min(100,s.hunger+35)}else if(s.resources.meat>0){s.resources.meat--;s.hunger=Math.min(100,s.hunger+25)}else if(s.resources.wheat>0){s.resources.wheat--;s.hunger=Math.min(100,s.hunger+10)}else{log("Нет еды. Нужен хлеб, мясо или пшеница.");return}log("Ты поел и восстановил сытость.");render();save()}
+function buy(n,cost,kind="gold",qty=1){if(kind==="gold"){if(s.gold<cost)return log("Недостаточно золота.");s.gold-=cost}else{if((s.resources[kind]||0)<cost)return log("Недостаточно ресурсов.");s.resources[kind]-=cost}addItem(n,qty);log(`Куплено: ${n} ×${qty}.`);render();save()}
+function sell(n,price){if(!s.items[n])return log("Этого предмета нет.");spendItem(n);s.gold+=price;log(`Продано: ${n} за ${price} золота.`);render();save()}
+function craftSword(){if(s.level<5)return log("Кузница открывается на 5 уровне.");if(s.resources.ore<3||s.resources.wood<2)return log("Нужно 3 руды и 2 древесины.");s.resources.ore-=3;s.resources.wood-=2;s.weapon="Оловянный меч";s.weaponPower=5;s.power=10;s.crafted++;log("Создан Оловянный меч! Урон увеличен.");render();save()}
+function collectFarm(){if(!s.buildings.farm)return log("Сначала открой ферму.");if(Date.now()<s.farmReady)return log("Урожай ещё растёт.");s.resources.wheat+=5;s.farmReady=Date.now()+30*60*1000;log("Собран урожай: +5 пшеницы. Следующий урожай через 30 минут.");render();save()}
+function buyAnimal(){if(s.gold<30)return log("Нужно 30 золота на овцу.");s.gold-=30;s.resources.meat+=0;s.resources.leather+=0;s.animalReady=Date.now()+30*60*1000;addItem("Овца",1);log("Куплена овца. Через 30 минут можно получить мясо и кожу.");render();save()}
+function slaughter(){if(!s.items["Овца"])return log("Нет овцы.");if(Date.now()<s.animalReady)return log("Животное ещё выращивается.");spendItem("Овца");s.resources.meat+=3;s.resources.leather+=1;log("Получено: 3 мяса и 1 кожа.");render();save()}
+function bakery(){if(s.resources.wheat<2)return log("Нужно 2 пшеницы.");s.resources.wheat-=2;s.resources.flour++;log("Пшеница перемолота: +1 мука.");render();save()}
+function bake(){if(s.resources.flour<1)return log("Нужна мука.");s.resources.flour--;s.resources.bread++;log("Испечён хлеб.");render();save()}
+function mine(){if(!s.buildings.mine)return; s.resources.ore+=2;s.resources.stone+=2;log("Шахта принесла 2 руды и 2 камня.");render();save()}
+function clinic(){let cost=50+Math.floor(s.maxHp/10);if(s.hp>=s.maxHp)return log("Здоровье уже полностью восстановлено.");if(s.gold<cost)return log(`Полное лечение стоит ${cost} золота.`);s.gold-=cost;s.hp=s.maxHp;s.hunger=Math.max(0,s.hunger-5);log(`Лазарет полностью восстановил здоровье за ${cost} золота.`);render();save()}
+function alchemy(){if(s.resources.herb<3)return log("Нужно 3 травы.");s.resources.herb-=3;addItem("Эликсир",1);log("Изготовлен эликсир.");render();save()}
+function useElixir(){if(s.hp>=s.maxHp)return log("Здоровье уже полностью восстановлено.");if(!spendItem("Эликсир"))return log("Нет эликсира.");let h=Math.min(50,s.maxHp-s.hp);s.hp+=h;log(`Эликсир восстановил ${h} HP.`);render();save()}
+function showTab(id){document.querySelectorAll(".page").forEach(p=>p.classList.toggle("hidden",p.id!==id));document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===id));if(id==="town")renderTown()}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+$("attackBtn").onclick=()=>{damageEnemy();save()};$("healBtn").onclick=useBandage;$("retreatBtn").onclick=()=>{showTab("town");log("Ты отступил в королевство. Враг не преследует тебя.")};
+$("saveNick").onclick=()=>{s.nick=$("nickname").value.trim().slice(0,18)||"Новичок";render();save()};
+function buildingAction(id){let b=buildings.find(x=>x.id===id);if(s.level<b.level)return;let d=$("buildingDetail");let buttons="";
+if(id==="trader"){refreshTraderStock();buttons=`<p>🩹 Бинт — +25 HP · 25 золота · Осталось: ${s.shopStock["Бинт"]}</p><button ${s.shopStock["Бинт"]<=0?"disabled":""} onclick="buyHeal('Бинт',25)">Купить бинт · 25 золота</button><p>🧪 Малое зелье — +50 HP · 50 золота · Осталось: ${s.shopStock["Малое зелье"]}</p><button ${s.shopStock["Малое зелье"]<=0?"disabled":""} onclick="buyHeal('Малое зелье',50)">Купить малое зелье · 50 золота</button><p>🍷 Большое зелье — +100 HP · 100 золота · Осталось: ${s.shopStock["Большое зелье"]}</p><button ${s.shopStock["Большое зелье"]<=0?"disabled":""} onclick="buyHeal('Большое зелье',100)">Купить большое зелье · 100 золота</button><p>✨ Мощный эликсир — +200 HP · 200 золота · Осталось: ${s.shopStock["Мощный эликсир"]}</p><button ${s.shopStock["Мощный эликсир"]<=0?"disabled":""} onclick="buyHeal('Мощный эликсир',200)">Купить мощный эликсир · 200 золота</button><p class="muted">Запасы пополняются каждые 30 минут. Все расходники исчезают после использования.</p>`;}
+if(id==="farm")buttons=`<button onclick="collectFarm()">🌾 Собрать урожай</button>`;
+if(id==="forge")buttons=`<button onclick="craftSword()">⚒️ Создать оловянный меч (3 руды + 2 дерева)</button>`;
+if(id==="animals")buttons=`<button onclick="buyAnimal()">Купить овцу — 30 золота</button> <button onclick="slaughter()">Забой овцы</button>`;
+if(id==="bakery")buttons=`<button onclick="bakery()">Смолоть 2 пшеницы</button> <button onclick="bake()">Испечь хлеб</button>`;
+if(id==="clinic")buttons=`<button onclick="clinic()">Полное лечение — ${50+Math.floor(s.maxHp/10)} золота</button> <button onclick="rest()">Отдохнуть</button>`;
+if(id==="mine")buttons=`<button onclick="mine()">⛏️ Добыть руду и камень</button>`;
+if(id==="alchemy")buttons=`<button onclick="alchemy()">⚗️ Сделать эликсир (3 травы)</button>`;
+if(id==="stable"||id==="guild")buttons=`<span class="muted">Здание открыто. Новые экспедиции появятся в следующих обновлениях.</span>`;
+d.innerHTML=`<b>${b.name}</b><p>${b.desc}</p>${buttons}`;
+}
+function renderTown(){ $("townLevel").textContent=s.level;$("xpText").textContent=`${s.xp}/${xpNeed(s.level)}`;$("xpBar").style.width=(s.xp/xpNeed(s.level)*100)+"%";$("townMap").innerHTML=buildings.map(b=>{let open=s.level>=b.level;return `<button class="place ${open?"":"locked"}" onclick="buildingAction('${b.id}')">${b.name}<b>${open?"Открыто":`🔒 Уровень ${b.level}`}</b></button>`}).join("")}
+function render(){ $("hLevel").textContent=s.level;$("hHp").textContent=`${Math.ceil(s.hp)}/${s.maxHp}`;$("hGold").textContent=s.gold;$("hFood").textContent=s.resources.bread+s.resources.meat+s.resources.wheat;$("wave").textContent=s.wave;$("enemyIcon").textContent=s.enemyIcon;$("enemyName").textContent=s.enemyName;$("enemyKind").textContent=s.boss?"БОСС":"Обычный враг";$("enemyHp").textContent=`${s.enemyHp}/${s.enemyMax}`;$("enemyBar").style.width=(s.enemyHp/s.enemyMax*100)+"%";$("battleHp").textContent=`${Math.ceil(s.hp)}/${s.maxHp}`;$("hpBar").style.width=(s.hp/s.maxHp*100)+"%";$("hungerText").textContent=Math.floor(s.hunger)+"/100";$("hungerBar").style.width=s.hunger+"%";$("energyText").textContent=Math.floor(s.energy)+"/100";$("energyBar").style.width=s.energy+"%";$("powerText").textContent=s.power+s.weaponPower;$("defText").textContent=s.def;$("profileName").textContent=s.nick;$("nickname").value=s.nick;$("profileStats").innerHTML=[["Уровень",s.level],["Наиграно",fmt(s.playSeconds)],["Побед",s.kills],["Смертей",s.deaths],["Убито боссов",s.bossKills],["Создано предметов",s.crafted],["Максимальная волна",s.highestWave]].map(x=>`<div class="row"><span>${x[0]}</span><b>${x[1]}</b></div>`).join("");$("itemsList").innerHTML=Object.entries(s.items).filter(x=>x[1]>0).map(([n,q])=>{let action={"Бинт":`useBandage()`,"Малое зелье":`usePotion('Малое зелье',50)`,"Большое зелье":`usePotion('Большое зелье',100)`,"Мощный эликсир":`usePotion('Мощный эликсир',200)`,"Эликсир":`useElixir()`}[n];return `<div class="item"><b>${n}</b> ×${q} ${action?`<button onclick="${action}">Использовать</button>`:""}</div>`}).join("")||"Инвентарь пуст.";
+$("itemsList").innerHTML+=`<h3>💎 Артефакты (${(s.artifactCollection||[]).length})</h3>`+((s.artifactCollection||[]).map(n=>{let a=artifactTable.find(x=>x.name===n);return `<div class="item"><b>${n}</b><small> — ${a?.rarity||"Артефакт"}: ${a?.desc||""}</small></div>`}).join("")||"<small>Пока нет артефактов. Побеждай боссов!</small>");const labels={wood:"Древесина",stone:"Камень",herb:"Лекарственные травы",ore:"Руда",cloth:"Ткань",meat:"Мясо",wheat:"Пшеница",flour:"Мука",bread:"Хлеб",leather:"Кожа"};$("resourcesList").innerHTML=Object.entries(s.resources).map(([k,v])=>`<div class="row"><span>${labels[k]||k}</span><b>${v}</b></div>`).join("");$("achievementList").innerHTML=[["Первый шаг",s.kills>=1,"Победи первого врага"],["Охотник",s.kills>=100,"Победи 100 врагов"],["Гроза боссов",s.bossKills>=10,"Победи 10 боссов"],["Кузнец",s.crafted>=1,"Создай предмет в кузнице"],["Ветеран",s.playSeconds>=36000,"Наиграй 10 часов"],["Путь до сотни",s.level>=100,"Достигни 100 уровня"]].map(a=>`<div class="item">${a[1]?"🏆":"🔒"} <b>${a[0]}</b><small> — ${a[2]}</small></div>`).join("");renderTown()}
+function tick(){s.playSeconds++;s.hp=Math.min(s.maxHp,s.hp+0.1);if(s.wave>1&&s.hp>0){s.hunger=Math.max(0,s.hunger-.012);s.energy=Math.max(0,s.energy-.01)}if(s.hunger<20||s.energy<20){/* мягкий штраф характеристик */}if(s.hp<=0)die();if(s.playSeconds%10===0){if(s.hp>0){if(s.enemyHp>0){damageEnemy()}else setEnemy()}save()}render()}
+setInterval(tick,1000);
+function boot(){if(!s.enemyName)setEnemy();else render();log("Добро пожаловать в KINGDOM WARS. Подготовься к первой экспедиции.");save()}
+boot();
+</script>
+</body></html>
