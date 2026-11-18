@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KINGDOM WARS</title>
+<style>
+:root{--gold:#e8b84d;--bg:#101018;--panel:#1b1b29;--muted:#aaa9ba}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#292039,#101018 55%);color:#f4f0e8;font:16px Arial,sans-serif}
+header{padding:22px;text-align:center;border-bottom:1px solid #55452b;background:#11111bdc}
+h1{margin:0;color:var(--gold);letter-spacing:5px;font-family:Georgia,serif}header p{color:var(--muted);margin:8px 0 0}
+main{max-width:1100px;margin:22px auto;padding:0 14px}.stats,.tabs{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
+.pill,.tab,.card{background:var(--panel);border:1px solid #393447;border-radius:12px;padding:12px}.pill b{color:var(--gold)}
+.tabs button,.action{background:#342943;color:#fff;border:1px solid #70582e;border-radius:9px;padding:11px 17px;cursor:pointer;font-weight:bold}
+.tabs button.active,.action{background:linear-gradient(#9b6c27,#63431e);color:#fff4d6}
+.panel{background:#191925;border:1px solid #40384b;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 12px 30px #0005}
+.arena{min-height:290px;position:relative;overflow:hidden;border-radius:14px;border:1px solid #655039;background:linear-gradient(#25223b 0%,#42334a 58%,#211c27 59%,#15141c 100%);display:flex;align-items:center;justify-content:space-around;padding:20px}
+.arena:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 100%,#b47b3433,transparent 55%);pointer-events:none}
+.fighter{z-index:1;text-align:center;width:38%;transition:transform .2s}.sprite{font-size:78px;display:block;filter:drop-shadow(0 8px 6px #0009)}
+.name{font-weight:bold;color:#f5d58a;margin:8px}.hp{height:12px;background:#451f27;border-radius:20px;overflow:hidden;border:1px solid #8d5960}
+.hp span{display:block;height:100%;background:linear-gradient(90deg,#d43d45,#ff8b65);transition:width .3s}
+.hero.swing{animation:swing .42s ease}.enemy.hit{animation:hit .35s ease}.enemy.dead{animation:vanish .75s forwards}
+@keyframes swing{0%{transform:translateX(0) rotate(0)}45%{transform:translateX(48px) rotate(24deg) scale(1.12)}100%{transform:translateX(0) rotate(0)}}
+@keyframes hit{0%,100%{transform:translateX(0);filter:none}35%{transform:translateX(18px);filter:brightness(3) sepia(1)}}
+@keyframes vanish{to{opacity:0;transform:translateY(45px) scale(.65);filter:grayscale(1)}}
+.damage{position:absolute;z-index:4;font-size:27px;font-weight:900;color:#ffdf70;text-shadow:0 2px 5px #000;animation:float .9s forwards;pointer-events:none}
+@keyframes float{to{transform:translateY(-65px) scale(1.3);opacity:0}}
+.controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:16px}
+.muted{color:var(--muted)}.log{height:130px;overflow:auto;background:#101018;border-radius:10px;padding:12px;color:#d4cfdb;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.card h3{margin:0 0 7px;color:var(--gold)}
+.hidden{display:none}.loot{color:#9ee6ad;font-weight:bold}
+@media(max-width:600px){.arena{min-height:240px;padding:8px}.sprite{font-size:55px}.fighter{width:42%}.vs{font-size:20px}h1{font-size:25px}}
+</style>
+</head>
+<body>
+<header><h1>KINGDOM WARS</h1><p>Путь героя начинается с первой битвы</p></header>
+<main>
+<div class="stats">
+ <div class="pill">Уровень: <b id="level">1</b></div><div class="pill">Опыт: <b id="xp">0</b></div>
+ <div class="pill">Золото: <b id="gold">0</b> 🪙</div><div class="pill">Волна: <b id="wave">1</b></div>
+ <div class="pill">Сила: <b id="power">10</b></div>
+</div>
+<nav class="tabs">
+<button class="active" onclick="showTab('battle',this)">⚔️ Сражение</button>
+<button onclick="showTab('inventory',this)">🎒 Инвентарь</button>
+<button onclick="showTab('forge',this)">🔨 Кузница</button>
+<button onclick="showTab('kingdom',this)">🏰 Королевство</button>
+</nav>
+<section id="battle" class="panel">
+<h2>Поле битвы</h2>
+<div class="arena" id="arena">
+ <div class="fighter hero" id="hero"><span class="sprite">🛡️⚔️</span><div class="name">Твой герой</div><div class="hp"><span id="heroHp" style="width:100%"></span></div></div>
+ <div class="vs">VS</div>
+ <div class="fighter enemy" id="enemy"><span class="sprite" id="enemySprite">👹</span><div class="name" id="enemyName">Лесной гоблин</div><div class="hp"><span id="enemyHp" style="width:100%"></span></div><small id="enemyHealth">30 / 30 HP</small></div>
+</div>
+<div class="controls"><button class="action" onclick="attack()">⚔️ АТАКОВАТЬ</button><button class="tab" onclick="rest()">🧪 Восстановить героя</button></div>
+<p class="muted" id="battleInfo">Побеждай врагов, получай опыт и готовься к боссам на каждой десятой волне.</p>
+<h3>Журнал боя</h3><div class="log" id="log">Ты вступаешь в бой. Удачи, воин!</div>
+</section>
+<section id="inventory" class="panel hidden"><h2>Инвентарь</h2><div class="grid" id="items"><div class="card">Пока пусто. Побеждай врагов, чтобы получать добычу.</div></div></section>
+<section id="forge" class="panel hidden"><h2>Кузница</h2>
+<div class="card"><h3>Грозовой Вершитель ⚡</h3><p>Легендарный меч из трёх мечей боссов.</p>
+<p>Нужны: Клинок Пепельного Короля, Меч Бездонного Стража и Громовой Клык Древнего Дракона.</p><button class="action" onclick="craft()">Создать меч</button></div></section>
+<section id="kingdom" class="panel hidden"><h2>Королевство</h2><div class="card"><h3>Зал славы</h3>
+<p>Каждая десятая волна — битва с боссом. Уровневый бонус к качеству добычи обновляется и не суммируется.</p>
+<p>Текущий бонус: <b id="bonus">0%</b></p></div></section>
+</main>
+<script>
+let s={level:1,xp:0,gold:0,wave:1,power:10,hp:100,maxHp:100,enemyHp:30,enemyMax:30,items:[],sword:false};
+const bossWeapons=['Клинок Пепельного Короля','Меч Бездонного Стража','Громовой Клык Древнего Дракона'];
+const normal=['Лесной гоблин','Разбойник','Проклятый рыцарь','Пещерный тролль','Тёмный волк'];
+const artifacts=['Сердце феникса','Кольцо древних','Око дракона','Плащ теней','Корона короля','Амулет стойкости','Руна грома','Кристалл душ','Печать хранителя','Звезда бездны','Клык титана','Чаша жизни','Маска призрака','Сфера огня','Лунный камень','Солнечный оберег','Перчатка силы','Сапоги ветра','Щит вечности','Ключ руин','Кровь дракона','Знак охотника','Осколок хаоса','Книга чар','Камень времени','Слеза богини','Талисман удачи','Серебряное перо','Рог единорога','Душа великана'];
+function save(){localStorage.setItem('kingdomWarsSave',JSON.stringify(s))}
+function log(t){let el=document.getElementById('log');el.innerHTML+=`<div>› ${t}</div>`;el.scrollTop=el.scrollHeight}
+function showTab(id,b){document.querySelectorAll('main section').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');}
+function update(){
+ ['level','xp','gold','wave','power'].forEach(k=>document.getElementById(k).textContent=s[k]);
+ document.getElementById('heroHp').style.width=(s.hp/s.maxHp*100)+'%';
+ document.getElementById('enemyHp').style.width=(s.enemyHp/s.enemyMax*100)+'%';
+ document.getElementById('enemyHealth').textContent=Math.max(0,s.enemyHp)+' / '+s.enemyMax+' HP';
+ document.getElementById('bonus').textContent=(Math.floor(s.level/10)>0?10:0)+'%';
+ document.getElementById('items').innerHTML=s.items.length?s.items.map(x=>`<div class="card"><h3>${x}</h3><span class="loot">Получено</span></div>`).join(''):'<div class="card">Пока пусто. Побеждай врагов, чтобы получать добычу.</div>';
+ save();
+}
+function setupEnemy(){
+ let boss=s.wave%10===0;
+ s.enemyMax=boss?120+s.wave*8:25+s.wave*7;
+ s.enemyHp=s.enemyMax;
+ document.getElementById('enemyName').textContent=boss?['Пепельный Король','Бездонный Страж','Древний Дракон'][(s.wave/10-1)%3]:normal[(s.wave-1)%normal.length];
+ document.getElementById('enemySprite').textContent=boss?['👑','👹','🐉'][(s.wave/10-1)%3]:['👺','🗡️','💀','🧌','🐺'][(s.wave-1)%5];
+ document.getElementById('enemy').classList.remove('dead');document.getElementById('battleInfo').textContent=boss?'БОСС! Победа может принести редкий трофей.':'Новый противник вышел на арену.';
+ update();
+}
+function floatDamage(text){let el=document.createElement('div');el.className='damage';el.textContent=text;el.style.left='68%';el.style.top='35%';document.getElementById('arena').appendChild(el);setTimeout(()=>el.remove(),950)}
+function attack(){
+ if(s.enemyHp<=0)return;
+ let damage=s.power+Math.floor(Math.random()*7),crit=Math.random()<.12;if(crit)damage*=2;
+ document.getElementById('hero').classList.remove('swing');document.getElementById('enemy').classList.remove('hit');void document.body.offsetWidth;
+ document.getElementById('hero').classList.add('swing');document.getElementById('enemy').classList.add('hit');
+ s.enemyHp=Math.max(0,s.enemyHp-damage);floatDamage((crit?'КРИТ! ':'−')+damage);log((crit?'Критический удар! ':'Ты наносишь удар: ')+damage+' урона.');
+ if(s.enemyHp<=0){win();}else{
+  let hit=Math.max(2,Math.floor(s.wave*1.6+Math.random()*5));s.hp=Math.max(0,s.hp-hit);log('Противник отвечает: −'+hit+' HP.');
+  if(s.hp<=0){s.hp=Math.ceil(s.maxHp*.45);log('Герой отступил и восстановился. Попробуй снова!');}
+ }
+ update();
+}
+function win(){
+ let boss=s.wave%10===0;log('Победа! Получено '+(15+s.wave*3)+' опыта и '+(8+s.wave*2)+' золота.');
+ s.xp+=15+s.wave*3;s.gold+=8+s.wave*2;
+ if(boss&&Math.random()<.03){let available=bossWeapons.filter(x=>!s.items.includes(x));if(available.length){let drop=available[0];s.items.push(drop);log('ЛЕГЕНДАРНЫЙ БОСС-ДРОП: '+drop+'!');}}
+ if(Math.random()<.18){let art=artifacts[Math.floor(Math.random()*artifacts.length)];if(!s.items.includes(art)){s.items.push(art);log('Редкий артефакт найден: '+art+'!');}}
+ if(s.xp>=s.level*35){s.xp-=s.level*35;s.level++;s.power+=3;s.maxHp+=10;s.hp=s.maxHp;log('Новый уровень! Теперь ты '+s.level+' уровня.');}
+ s.wave++;setTimeout(setupEnemy,650);
+}
+function rest(){if(s.gold<10){log('Нужно 10 золота для лечения.');return;}s.gold-=10;s.hp=s.maxHp;log('Герой полностью восстановил здоровье.');update()}
+function craft(){if(s.sword){log('Грозовой Вершитель уже создан!');return;}if(bossWeapons.every(x=>s.items.includes(x))){bossWeapons.forEach(x=>s.items.splice(s.items.indexOf(x),1));s.items.push('Грозовой Вершитель ⚡');s.power+=80;s.sword=true;log('КУЗНИЦА: создан легендарный Грозовой Вершитель! Сила +80.');update()}else log('Пока не хватает трёх мечей боссов.')}
+function load(){try{let old=JSON.parse(localStorage.getItem('kingdomWarsSave'));if(old)s={...s,...old}}catch(e){}setupEnemy();update()}
+load();
+</script>
+</body></html>
